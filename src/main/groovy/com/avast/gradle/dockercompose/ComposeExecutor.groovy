@@ -40,6 +40,10 @@ class ComposeExecutor {
         executeWithCustomOutput(os, true, true, true, args)
     }
 
+    String getExecutor() {
+        return this.settings.useNewDockerCompose().get() ? this.settings.dockerExecutable.get() : this.settings.executable.get()
+    }
+
     void executeWithCustomOutput(OutputStream os, Boolean ignoreExitValue, Boolean noAnsi, Boolean captureStderr, String... args) {
         def settings = this.settings
         def er = exec.exec { ExecSpec e ->
@@ -47,7 +51,7 @@ class ComposeExecutor {
                 e.setWorkingDir(settings.dockerComposeWorkingDirectory.get().asFile)
             }
             e.environment = settings.environment.get()
-            def finalArgs = [settings.executable.get()]
+            def finalArgs = [this.getExecutor()]
             finalArgs.addAll(settings.composeAdditionalArgs.get())
             if (noAnsi) {
                 if (version >= VersionNumber.parse('1.28.0')) {
@@ -73,7 +77,7 @@ class ComposeExecutor {
         }
         if (!ignoreExitValue && er.exitValue != 0) {
             def stdout = os != null ? os.toString().trim() : "N/A"
-            throw new RuntimeException("Exit-code ${er.exitValue} when calling ${settings.executable.get()}, stdout: $stdout")
+            throw new RuntimeException("Exit-code ${er.exitValue} when calling ${this.getExecutor()}, stdout: $stdout")
         }
     }
 

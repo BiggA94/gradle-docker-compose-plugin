@@ -114,6 +114,8 @@ abstract class ComposeSettings {
     abstract DirectoryProperty getDockerComposeWorkingDirectory()
     abstract Property<Duration> getDockerComposeStopTimeout()
 
+    abstract Property<Boolean> useNewDockerCompose()
+
     @Inject
     ComposeSettings(Project project, String name = '', String parentName = '') {
         this.project = project
@@ -184,6 +186,8 @@ abstract class ComposeSettings {
         this.dockerExecutor = project.objects.newInstance(DockerExecutor, this)
         this.composeExecutor = project.objects.newInstance(ComposeExecutor, this)
         this.serviceInfoCache = new ServiceInfoCache(this)
+
+        useNewDockerCompose().set(false)
     }
 
     private static String generateSafeProjectNamePrefix(Project project) {
